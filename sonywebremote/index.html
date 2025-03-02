@@ -1,0 +1,666 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>Smart TV Remote - Modern Demo</title>
+    <style>
+        /* ------ BASE STYLES ------ */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "Roboto", Arial, sans-serif;
+            background-color: #F5F5F5;
+            color: #333;
+        }
+
+        h1,
+        h2,
+        h3 {
+            font-weight: 500;
+        }
+
+        /* ------ CONTAINER ------ */
+        .remote-container {
+            max-width: 420px;
+            margin: 30px auto;
+            padding: 0 15px;
+        }
+
+        /* ------ HEADER SECTION (TITLE / DEVICE NAME) ------ */
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .header h1 {
+            font-size: 1.4rem;
+            margin-bottom: 5px;
+        }
+
+        .header span {
+            font-size: 0.9rem;
+            color: #888;
+        }
+
+        /* ------ CARD LAYOUT ------ */
+        .card {
+            background-color: #fff;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            padding: 16px;
+            margin-bottom: 20px;
+        }
+
+        .card h3 {
+            margin-bottom: 10px;
+            font-size: 1.1rem;
+        }
+
+        /* ------ FORMS & INPUTS ------ */
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-size: 0.9rem;
+            color: #555;
+        }
+
+        input[type="text"],
+        select {
+            width: 100%;
+            padding: 8px;
+            font-size: 0.9rem;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            margin-bottom: 10px;
+        }
+
+        /* ------ BUTTONS ------ */
+        .remote-button {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #EFEFEF;
+            border: none;
+            border-radius: 8px;
+            padding: 10px 14px;
+            margin: 4px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+
+        .remote-button:hover {
+            background-color: #E0E0E0;
+        }
+
+        /* ------ NUMERIC GRID ------ */
+        .numeric-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+        }
+
+        /* ------ DPAD ------ */
+        .dpad-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .dpad-row {
+            display: flex;
+            gap: 10px;
+        }
+
+        /* Circle behind the D-Pad for style */
+        .dpad-circle {
+            position: relative;
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            background-color: #F9F9F9;
+            box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.05);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 10px;
+        }
+
+        /* Position the arrow buttons inside the circle */
+        .dpad-up,
+        .dpad-down,
+        .dpad-left,
+        .dpad-right,
+        .dpad-ok {
+            position: absolute;
+            background-color: #EFEFEF;
+            border-radius: 8px;
+            width: 48px;
+            height: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+
+        .dpad-up:hover,
+        .dpad-down:hover,
+        .dpad-left:hover,
+        .dpad-right:hover,
+        .dpad-ok:hover {
+            background-color: #E0E0E0;
+        }
+
+        .dpad-up {
+            top: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .dpad-down {
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .dpad-left {
+            left: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+
+        .dpad-right {
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+
+        .dpad-ok {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background-color: #ddd;
+        }
+
+        /* ------ VOLUME SLIDER ------ */
+        .volume-slider {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .volume-slider input[type="range"] {
+            flex: 1;
+            -webkit-appearance: none;
+            height: 4px;
+            background: #ddd;
+            outline: none;
+            border-radius: 2px;
+            cursor: pointer;
+        }
+
+        .volume-slider input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 16px;
+            height: 16px;
+            background: #888;
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 0 2px rgba(0, 0, 0, 0.3);
+        }
+
+        /* ------ STATUS BAR ------ */
+        .status-bar {
+            text-align: center;
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        /* ------ APPS GRID ------ */
+        #appsGrid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        #appsGrid button img {
+            width: 20px;
+            height: 20px;
+            margin-right: 5px;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Audio elements for sound effects -->
+    <audio id="hoverSound" src="https://cdn.freesound.org/previews/405/405158_7708675-lq.mp3" preload="auto"></audio>
+    <audio id="clickSound" src="https://cdn.freesound.org/previews/423/423771_8326967-lq.mp3" preload="auto"></audio>
+
+    <div class="remote-container">
+        <!-- Header: Title & TV Name -->
+        <div class="header">
+            <h1>Smart Television</h1>
+            <span>Sony Bravia - Web Remote</span>
+        </div>
+
+        <!-- Card: Power Controls -->
+        <div class="card">
+            <h3>Power</h3>
+            <button class="remote-button" id="powerOn">ON</button>
+            <button class="remote-button" id="powerOff">OFF</button>
+        </div>
+
+        <!-- Card: Branded Buttons -->
+        <div class="card">
+            <h3>Branded Apps</h3>
+            <button class="remote-button ircc-button" data-ircc="AAAAAgAAABoAAAB8Aw==">Netflix</button>
+            <button class="remote-button ircc-button" data-ircc="AAAAAgAAAMQAAABHAw==">youtube</button>
+            <button class="remote-button ircc-button" data-ircc="AAAAAgAAAMQAAABGAw==">Google Play</button>
+        </div>
+
+        <!-- Card: Navigation -->
+        <div class="card">
+            <h3>Navigation</h3>
+            <div class="dpad-container">
+                <div class="dpad-circle">
+                    <div class="dpad-up ircc-button remote-button" data-ircc="AAAAAQAAAAEAAAB0Aw==">&#x2B06;</div>
+                    <div class="dpad-down ircc-button remote-button" data-ircc="AAAAAQAAAAEAAAB1Aw==">&#x2B07;</div>
+                    <div class="dpad-left ircc-button remote-button" data-ircc="AAAAAQAAAAEAAAA0Aw==">&#x2B05;</div>
+                    <div class="dpad-right ircc-button remote-button" data-ircc="AAAAAQAAAAEAAAAzAw==">&#x27A1;</div>
+                    <div class="dpad-ok ircc-button remote-button" data-ircc="AAAAAQAAAAEAAABlAw==">OK</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Card: Back & Home -->
+        <div class="card">
+            <h3>Back &amp; Home</h3>
+            <button class="remote-button ircc-button" data-ircc="AAAAAgAAAJcAAAAjAw==">Back</button>
+            <button class="remote-button ircc-button" data-ircc="AAAAAQAAAAEAAABgAw==">Home</button>
+        </div>
+
+        <!-- Card: Volume &amp; Channels -->
+        <div class="card">
+            <h3>Volume &amp; Channels</h3>
+            <div style="margin-bottom:10px;">
+                <button class="remote-button" id="volUp">Vol +1</button>
+                <button class="remote-button" id="volDown">Vol -1</button>
+                <button class="remote-button" id="muteOn">Mute</button>
+                <button class="remote-button" id="muteOff">Unmute</button>
+            </div>
+            <div style="margin-bottom:10px;">
+                <label for="volumeInput">Set Volume (0-100):</label>
+                <input type="text" id="volumeInput" size="3" value="10">
+                <button class="remote-button" id="setVolume">Apply</button>
+            </div>
+            <div class="volume-slider">
+                <label for="volumeSlider" style="white-space: nowrap;">Slider:</label>
+                <input type="range" id="volumeSlider" min="0" max="100" value="10" step="1">
+            </div>
+            <!-- Card: Numeric Keypad -->
+            <div class="card">
+                <h3>Numeric Keypad</h3>
+                <div class="numeric-grid">
+                    <button class="remote-button ircc-button" data-ircc="AAAAAQAAAAEAAAAAAw==">1</button>
+                    <button class="remote-button ircc-button" data-ircc="AAAAAQAAAAEAAAABAw==">2</button>
+                    <button class="remote-button ircc-button" data-ircc="AAAAAQAAAAEAAAACAw==">3</button>
+                    <button class="remote-button ircc-button" data-ircc="AAAAAQAAAAEAAAADAw==">4</button>
+                    <button class="remote-button ircc-button" data-ircc="AAAAAQAAAAEAAAAEAw==">5</button>
+                    <button class="remote-button ircc-button" data-ircc="AAAAAQAAAAEAAAAFAw==">6</button>
+                    <button class="remote-button ircc-button" data-ircc="AAAAAQAAAAEAAAAGAw==">7</button>
+                    <button class="remote-button ircc-button" data-ircc="AAAAAQAAAAEAAAAHAw==">8</button>
+                    <button class="remote-button ircc-button" data-ircc="AAAAAQAAAAEAAAAIAw==">9</button>
+                    <button class="remote-button ircc-button" data-ircc="AAAAAQAAAAEAAAAJAw==">*</button>
+                    <button class="remote-button ircc-button" data-ircc="AAAAAQAAAAEAAAAKAw==">0</button>
+                    <button class="remote-button ircc-button" data-ircc="AAAAAQAAAAEAAAALAw==">#</button>
+                </div>
+            </div>
+            <div style="margin-top: 10px;">
+                <button class="remote-button ircc-button" data-ircc="AAAAAQAAAAEAAAAQAw==">CH +</button>
+                <button class="remote-button ircc-button" data-ircc="AAAAAQAAAAEAAAARAw==">CH -</button>
+            </div>
+        </div>
+
+        <!-- Card: App Launcher -->
+        <div class="card">
+            <h3>App Launcher (Custom URL)</h3>
+            <input type="text" id="url" size="50" placeholder="https://example.com">
+            <select id="apptype">
+                <option value="url">HTML URL</option>
+                <option value="manifest">Manifest URL</option>
+            </select>
+            <button class="remote-button" id="launchApp">Go</button>
+        </div>
+
+        <!-- New Card: YouTube Search -->
+        <div class="card">
+            <h3>YouTube Search</h3>
+            <label for="youtubeSearch">Search Query:</label>
+            <input type="text" id="youtubeSearch" size="50" placeholder="Enter search term">
+            <button class="remote-button" id="searchYouTube">Search YouTube</button>
+        </div>
+
+        <!-- Card: Available Apps -->
+        <div class="card">
+            <h3>Available Apps</h3>
+            <div id="appsGrid"></div>
+        </div>
+
+        <!-- Card: TV Connection Settings -->
+        <div class="card">
+            <h3>Connection</h3>
+            <label for="tvIp">TV IP:</label>
+            <input type="text" id="tvIp" placeholder="192.168.0.164" value="192.168.0.164">
+            <label for="psk">PSK:</label>
+            <input type="text" id="psk" placeholder="0000" value="7542">
+        </div>
+
+        <!-- Status Bar -->
+        <div class="status-bar" id="status" style="margin-top: 15px;">Status: Ready</div>
+    </div>
+
+    <script>
+        // Update the status display
+        function updateStatus(message) {
+            document.getElementById('status').innerText = "Status: " + message;
+        }
+
+        // Common function to send JSON or XML requests using Fetch API
+        async function sendRequest(service, method, params, requestType = 'json') {
+            const tvIp = document.getElementById("tvIp").value.trim();
+            const psk = document.getElementById("psk").value.trim();
+            const url = `http://${tvIp}/sony/${service}`;
+            let headers = { "X-Auth-PSK": psk };
+            let body;
+
+            if (requestType === 'json') {
+                headers["Content-Type"] = "application/json";
+                body = JSON.stringify({
+                    method: method,
+                    version: "1.0",
+                    id: 1,
+                    params: [params]
+                });
+            } else if (requestType === 'xml') {
+                headers["Content-Type"] = "text/xml; charset=UTF-8";
+                headers["SOAPACTION"] = "\"urn:schemas-sony-com:service:IRCC:1#X_SendIRCC\"";
+                body = `<?xml version="1.0"?>
+<s:Envelope xmlns:s="http://schemas.xmlsoap.org/soap/envelope/" s:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/">
+  <s:Body>
+    <u:X_SendIRCC xmlns:u="urn:schemas-sony-com:service:IRCC:1">
+      <IRCCCode>${params.code}</IRCCCode>
+    </u:X_SendIRCC>
+  </s:Body>
+</s:Envelope>`;
+            }
+
+            try {
+                const response = await fetch(url, {
+                    method: "POST",
+                    headers: headers,
+                    body: body
+                });
+                if (response.ok) {
+                    updateStatus("Command Sent");
+                    const respText = await response.text();
+                    console.log("Response:", respText);
+                } else {
+                    updateStatus(`Error: ${response.status}`);
+                }
+            } catch (error) {
+                updateStatus("Request Failed: " + error.message);
+            }
+        }
+
+        // Wrapper functions for specific commands
+        function power(status) {
+            sendRequest("system", "setPowerStatus", { status: status });
+        }
+
+        function mute(on) {
+            sendRequest("audio", "setAudioMute", { status: on });
+        }
+
+        function volume(val) {
+            sendRequest("audio", "setAudioVolume", { target: "speaker", volume: val });
+        }
+
+        function app() {
+            const appType = document.getElementById("apptype").value;
+            const urlInput = document.getElementById("url").value;
+            const uri = `localapp://webappruntime?${appType}=${urlInput}`;
+            sendRequest("appControl", "setActiveApp", { uri: uri, data: "" });
+        }
+
+        // Function for IRCC commands
+        function sendIRCC(code) {
+            sendRequest("IRCC", "X_SendIRCC", { code: code }, "xml");
+        }
+
+        // Function for launching an app using its URI
+        function launchApp(uri) {
+            sendRequest("appControl", "setActiveApp", { uri: uri, data: "" });
+        }
+
+        // Function to perform a YouTube search using a query entered on the PC.
+        function searchYouTube() {
+            const query = document.getElementById("youtubeSearch").value.trim();
+            if (!query) {
+                updateStatus("Please enter a search query.");
+                return;
+            }
+            const data = JSON.stringify({ search_query: query });
+            sendRequest("appControl", "setActiveApp", {
+                uri: "com.sony.dtv.com.google.android.youtube.tv.com.google.android.apps.youtube.tv.activity.ShellActivity",
+                data: data
+            });
+        }
+
+        // Add sound effects to buttons on hover and click.
+        function addSoundEffects() {
+            const hoverSound = document.getElementById("hoverSound");
+            const clickSound = document.getElementById("clickSound");
+
+            document.querySelectorAll(".remote-button").forEach(button => {
+                button.addEventListener("mouseenter", () => {
+                    hoverSound.currentTime = 0;
+                    hoverSound.play();
+                });
+                button.addEventListener("mousedown", () => {
+                    clickSound.currentTime = 0;
+                    clickSound.play();
+                });
+            });
+        }
+
+        // Example application list JSON (add or remove apps as needed)
+        const appListResponse = {
+            "result": [
+                [
+                    {
+                        "title": "Play Store",
+                        "uri": "com.sony.dtv.com.android.vending.com.google.android.finsky.tvmainactivity.TvMainActivity",
+                        "icon": "http:\/\/192.168.0.164\/DIAL\/icon\/com.sony.dtv.com.android.vending.com.google.android.finsky.tvmainactivity.TvMainActivity.png"
+                    },
+                    {
+                        "title": "YouTube",
+                        "uri": "com.sony.dtv.com.google.android.youtube.tv.com.google.android.apps.youtube.tv.activity.ShellActivity",
+                        "icon": "http:\/\/192.168.0.164\/DIAL\/icon\/com.sony.dtv.com.google.android.youtube.tv.com.google.android.apps.youtube.tv.activity.ShellActivity.png"
+                    },
+                    {
+                        "title": "YouTube Music",
+                        "uri": "com.sony.dtv.com.google.android.youtube.tvmusic.com.google.android.apps.youtube.tvmusic.activity.MainActivity",
+                        "icon": "http:\/\/192.168.0.164\/DIAL\/icon\/com.sony.dtv.com.google.android.youtube.tvmusic.com.google.android.apps.youtube.tvmusic.activity.MainActivity.png"
+                    },
+                    {
+                        "title": "Music",
+                        "uri": "com.sony.dtv.com.sony.dtv.osat.music.com.sonyericsson.music.MusicActivity",
+                        "icon": "http:\/\/192.168.0.164\/DIAL\/icon\/com.sony.dtv.com.sony.dtv.osat.music.com.sonyericsson.music.MusicActivity.png"
+                    },
+                    {
+                        "title": "Media Player",
+                        "uri": "com.sony.dtv.com.sony.dtv.smartmediaapp.com.sony.dtv.smartmediaapp.MainActivity",
+                        "icon": "http:\/\/192.168.0.164\/DIAL\/icon\/com.sony.dtv.com.sony.dtv.smartmediaapp.com.sony.dtv.smartmediaapp.MainActivity.png"
+                    },
+                    {
+                        "title": "TV",
+                        "uri": "com.sony.dtv.com.sony.dtv.tvx.com.sony.dtv.tvx.MainActivity",
+                        "icon": "http:\/\/192.168.0.164\/DIAL\/icon\/com.sony.dtv.com.sony.dtv.tvx.com.sony.dtv.tvx.MainActivity.png"
+                    },
+                    {
+                        "title": "YouTube TV",
+                        "uri": "com.sony.dtv.com.google.android.youtube.tvunplugged.com.google.android.apps.youtube.tvunplugged.activity.MainActivity",
+                        "icon": "http:\/\/192.168.0.164\/DIAL\/icon\/com.sony.dtv.com.google.android.youtube.tvunplugged.com.google.android.apps.youtube.tvunplugged.activity.MainActivity.png"
+                    },
+                    {
+                        "title": "Prime Video",
+                        "uri": "com.sony.dtv.com.amazon.amazonvideo.livingroom.com.amazon.ignition.IgnitionActivity",
+                        "icon": "http:\/\/192.168.0.164\/DIAL\/icon\/com.sony.dtv.com.amazon.amazonvideo.livingroom.com.amazon.ignition.IgnitionActivity.png"
+                    },
+                    {
+                        "title": "Netflix",
+                        "uri": "com.sony.dtv.com.netflix.ninja.com.netflix.ninja.MainActivity",
+                        "icon": "http:\/\/192.168.0.164\/DIAL\/icon\/com.sony.dtv.com.netflix.ninja.com.netflix.ninja.MainActivity.png"
+                    },
+                    {
+                        "title": "Living Decor",
+                        "uri": "com.sony.dtv.com.sony.dtv.livingfit.com.sony.dtv.livingfit.MainActivity",
+                        "icon": "http:\/\/192.168.0.164\/DIAL\/icon\/com.sony.dtv.com.sony.dtv.livingfit.com.sony.dtv.livingfit.MainActivity.png"
+                    },
+                    {
+                        "title": "BRAVIA notifications",
+                        "uri": "com.sony.dtv.com.sony.dtv.notificationcenter.com.sony.dtv.notificationcenter.NotificationCenterActivity",
+                        "icon": "http:\/\/192.168.0.164\/DIAL\/icon\/com.sony.dtv.com.sony.dtv.notificationcenter.com.sony.dtv.notificationcenter.NotificationCenterActivity.png"
+                    },
+                    {
+                        "title": "My BRAVIA",
+                        "uri": "com.sony.dtv.com.sony.dtv.promos.com.sony.dtv.promos.MainActivity",
+                        "icon": "http:\/\/192.168.0.164\/DIAL\/icon\/com.sony.dtv.com.sony.dtv.promos.com.sony.dtv.promos.MainActivity.png"
+                    },
+                    {
+                        "title": "Help",
+                        "uri": "com.sony.dtv.com.sony.dtv.smarthelp.com.sony.dtv.smarthelp.activity.MainActivity",
+                        "icon": "http:\/\/192.168.0.164\/DIAL\/icon\/com.sony.dtv.com.sony.dtv.smarthelp.com.sony.dtv.smarthelp.activity.MainActivity.png"
+                    },
+                    {
+                        "title": "Sony Select",
+                        "uri": "com.sony.dtv.com.sony.dtv.sonyselect.com.sony.dtv.sonyselect.activities.LaunchActivity",
+                        "icon": "http:\/\/192.168.0.164\/DIAL\/icon\/com.sony.dtv.com.sony.dtv.sonyselect.com.sony.dtv.sonyselect.activities.LaunchActivity.png"
+                    },
+                    {
+                        "title": "Timers &amp; Clock",
+                        "uri": "com.sony.dtv.com.sony.dtv.timers.com.sony.dtv.timers.activity.TimersMainActivity",
+                        "icon": "http:\/\/192.168.0.164\/DIAL\/icon\/com.sony.dtv.com.sony.dtv.timers.com.sony.dtv.timers.activity.TimersMainActivity.png"
+                    },
+                    {
+                        "title": "Timers &amp; Clock",
+                        "uri": "com.sony.dtv.com.sony.dtv.timers.com.sony.dtv.activity.TimersMainActivity",
+                        "icon": "http:\/\/192.168.0.164\/DIAL\/icon\/com.sony.dtv.com.sony.dtv.timers.com.sony.dtv.activity.TimersMainActivity.png"
+                    },
+                    {
+                        "title": "Internet Browser",
+                        "uri": "com.sony.dtv.com.vewd.core.integration.dia.com.vewd.core.integration.dia.SonyBrowserUiActivity",
+                        "icon": "http:\/\/192.168.0.164\/DIAL\/icon\/com.sony.dtv.com.vewd.core.integration.dia.com.vewd.core.integration.dia.SonyBrowserUiActivity.png"
+                    },
+                    {
+                        "title": "Toffee",
+                        "uri": "com.sony.dtv.com.banglalink.toffeetv.com.nexdecade.live.tv.ui.splash.SplashActivity",
+                        "icon": "http:\/\/192.168.0.164\/DIAL\/icon\/com.sony.dtv.com.banglalink.toffeetv.com.nexdecade.live.tv.ui.splash.SplashActivity.png"
+                    },
+                    {
+                        "title": "Bongo",
+                        "uri": "com.sony.dtv.com.bongo.bongobdandroidtv.saas.ott.smarttv.ui.splash.view.SplashActivity",
+                        "icon": "http:\/\/192.168.0.164\/DIAL\/icon\/com.sony.dtv.com.bongo.bongobdandroidtv.saas.ott.smarttv.ui.splash.view.SplashActivity.png"
+                    },
+                    {
+                        "title": "Bioscope",
+                        "uri": "com.sony.dtv.com.grameenphone.bioscope.saas.ott.smarttv.ui.splash.view.SplashActivity",
+                        "icon": "http:\/\/192.168.0.164\/DIAL\/icon\/com.sony.dtv.com.grameenphone.bioscope.saas.ott.smarttv.ui.splash.view.SplashActivity.png"
+                    },
+                    {
+                        "title": "Chorki",
+                        "uri": "com.sony.dtv.com.prothomalo.com.prothomalo.MainActivity",
+                        "icon": "http:\/\/192.168.0.164\/DIAL\/icon\/com.sony.dtv.com.prothomalo.com.prothomalo.MainActivity.png"
+                    },
+                    {
+                        "title": "Spotify",
+                        "uri": "com.sony.dtv.com.spotify.tv.android.com.spotify.tv.android.SpotifyTVActivity",
+                        "icon": "http:\/\/192.168.0.164\/DIAL\/icon\/com.sony.dtv.com.spotify.tv.android.com.spotify.tv.android.SpotifyTVActivity.png"
+                    },
+                    {
+                        "title": "Hoichoi",
+                        "uri": "com.sony.dtv.com.viewlift.hoichoi.com.viewlift.hoichoi.ui.splash.MainActivity",
+                        "icon": "http:\/\/192.168.0.164\/DIAL\/icon\/com.sony.dtv.com.viewlift.hoichoi.com.viewlift.hoichoi.ui.splash.MainActivity.png"
+                    }
+                ]
+            ],
+            "id": 60
+        };
+
+        // Dynamically create app buttons using the application list
+        function populateApps() {
+            const apps = appListResponse.result[0];
+            const container = document.getElementById("appsGrid");
+            apps.forEach(app => {
+                const btn = document.createElement("button");
+                btn.className = "remote-button";
+                btn.innerHTML = app.icon
+                    ? `<img src="${app.icon}" alt="${app.title} icon"> ${app.title}`
+                    : app.title;
+                btn.addEventListener("click", () => {
+                    launchApp(app.uri);
+                });
+                container.appendChild(btn);
+            });
+        }
+
+        // Event bindings
+        document.addEventListener("DOMContentLoaded", function () {
+            // IRCC buttons
+            document.querySelectorAll(".ircc-button").forEach(button => {
+                button.addEventListener("click", () => {
+                    const code = button.getAttribute("data-ircc");
+                    sendIRCC(code);
+                });
+            });
+
+            // Power controls
+            document.getElementById("powerOn").addEventListener("click", () => power(true));
+            document.getElementById("powerOff").addEventListener("click", () => power(false));
+
+            // Volume controls
+            document.getElementById("volUp").addEventListener("click", () => volume("+1"));
+            document.getElementById("volDown").addEventListener("click", () => volume("-1"));
+            document.getElementById("setVolume").addEventListener("click", () => {
+                const vol = document.getElementById("volumeInput").value;
+                volume(vol);
+            });
+            document.getElementById("volumeSlider").addEventListener("input", (e) => {
+                volume(e.target.value);
+            });
+
+            // Mute buttons
+            document.getElementById("muteOn").addEventListener("click", () => mute(true));
+            document.getElementById("muteOff").addEventListener("click", () => mute(false));
+
+            // Custom app launcher
+            document.getElementById("launchApp").addEventListener("click", app);
+
+            // YouTube Search button
+            document.getElementById("searchYouTube").addEventListener("click", searchYouTube);
+
+            // Populate the app buttons and add sound effects to buttons
+            populateApps();
+            addSoundEffects();
+        });
+    </script>
+</body>
+
+</html>
